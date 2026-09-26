@@ -1981,6 +1981,8 @@
             }
             if (isVideoUrl(src)) {
                 PVI.show("load");
+                // keep the original URL with its hints (e.g. "#mp4") to use it as a cache
+                PVI.videoSrc = src;
                 PVI.openVideojs({
                     src: src.split('#')[0],
                     type: /(#mp4|\.(f4v|mka|mp4)($|\?))/i.test(src) ? 'video/mp4' :
@@ -2227,7 +2229,11 @@
                 }
             }
             delete PVI.TRG.IMGS_c_resolved;
-            PVI.TRG.IMGS_c = PVI.CNT === PVI.VIDEOJS ? PVI.PLAYER?.src() : PVI.CNT.src;
+            if (PVI.CNT === PVI.VIDEOJS) {
+                // the player's src has no type hints, so cache the original URL if it's the same video
+                const playerSrc = PVI.PLAYER?.src();
+                PVI.TRG.IMGS_c = PVI.videoSrc?.split("#")[0] === playerSrc ? PVI.videoSrc : playerSrc;
+            } else PVI.TRG.IMGS_c = PVI.CNT.src;
             if (!PVI.TRG.IMGS_SVG) PVI.stack[PVI.IMG.src] = true;
             PVI.show(true);
             PVI.HD_cursor(PVI.TRG.IMGS_HD !== false);
